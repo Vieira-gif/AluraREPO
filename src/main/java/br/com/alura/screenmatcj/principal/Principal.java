@@ -3,60 +3,64 @@ package br.com.alura.screenmatcj.principal;
 import br.com.alura.screenmatcj.model.DadosEpisodio;
 import br.com.alura.screenmatcj.model.DadosSerie;
 import br.com.alura.screenmatcj.model.DadosTemporada;
-import br.com.alura.screenmatcj.services.ConsumoApi;
-import br.com.alura.screenmatcj.services.ConverteDados;
-import ch.qos.logback.core.encoder.JsonEscapeUtil;
+import br.com.alura.screenmatcj.model.Episodio;
+import br.com.alura.screenmatcj.service.ConsumoApi;
+import br.com.alura.screenmatcj.service.ConverteDados;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Principal {
 
-    private final String ENDERECO = "https://www.omdbapi.com/?t=";
+    private Scanner leitura = new Scanner(System.in);
     private ConsumoApi consumo = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
+
+    private final String ENDERECO = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=ed389052";
-    private String nomeSerie;
-    Scanner sc = new Scanner(System.in);
+
     public void exibeMenu(){
-        System.out.println("Digite o nome da serie: ");
-        nomeSerie = sc.nextLine();
-        System.out.println(retornaDados());
+        System.out.println("Digite o nome da série para busca");
+        var nomeSerie = leitura.nextLine();
+        var json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + API_KEY);
+        DadosSerie dados = conversor.obterDados(json, DadosSerie.class);
+        //System.out.println(dados);
 
         List<DadosTemporada> temporadas = new ArrayList<>();
 
-        for (int i = 1; i <= retornaDados().totalTemporadas(); i++){
-            var json = consumo.obterDados(ENDERECO + transformaURL() + API_KEY + "&season=" + i);
+        for (int i = 1; i<=dados.totalTemporadas(); i++){
+            json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") +"&season=" + i + API_KEY);
             DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
             temporadas.add(dadosTemporada);
         }
-
-        temporadas.forEach(System.out::println);
-        temporadas.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
+        //temporadas.forEach(System.out::println);
 
         List<DadosEpisodio> dadosEpisodios = temporadas.stream()
-                .flatMap(t -> t.episodios().stream())
+                .flatMap(
+                        temporada -> temporada
+                                .episodios()
+                                .stream()
+                )
                 .collect(Collectors.toList());
 
-        System.out.println("\nTOP 5 Episodios:");
+        System.out.println("Melhores 5 episodios: ");
         dadosEpisodios.stream()
-                .filter(d -> !d.avaliacao().equalsIgnoreCase("N/A"))
-                .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
+                .filter(episodio -> !episodio.avaliacao().equalsIgnoreCase("N/A"))
+                .sorted(
+                        Comparator.comparing(DadosEpisodio::avaliacao)
+                                .reversed()
+                )
                 .limit(5)
                 .forEach(System.out::println);
 
+        List<Episodio> episodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream()
+                        .map(d -> new Episodio(t.numero(), d)).collect(Collectors.toList()));
+
+        episodios.forEach(System.out::println);
     }
-
-
-    private DadosSerie retornaDados() {
-        var json = consumo.obterDados(ENDERECO + transformaURL() + API_KEY);
-        return conversor.obterDados(json, DadosSerie.class);
-    }
-
-    private String transformaURL (){
-        return URLEncoder.encode(nomeSerie, StandardCharsets.UTF_8);
-    }
-
 }
