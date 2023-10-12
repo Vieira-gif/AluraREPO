@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Formulario</title>
+  <style>
+    input {
+      display: block;
+      margin: 0.3%;
+    }
+
+    input.botao {
+      margin-top: 25px;
+    }
+
+    a, a:hover, a:focus, a:active {
+        margin-top: 30px;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cadastro de filmes</h1>
+  <div>
+    <form method="POST" action="/filmes">
+      <label for="nome">Nome:</label>
+      <input id="nome" name="nome" type="text">
+      <label for="duracao">Duração (Em minutos):</label>
+      <input id="duracao" name="duracao" type="text">
+      <label for="ano">Ano de lançamento:</label>
+      <input id="ano" name="ano" type="text">
+      <label for="genero">Genero:</label>
+      <input id="genero" name="genero" type="text">
+
+      <input type="submit" value="Cadastrar" class="botao">
+    </form>
+      <a href="http://localhost:8080/filmes/listagem">Listagem</a>
+  </div>
+</body>
+</html>

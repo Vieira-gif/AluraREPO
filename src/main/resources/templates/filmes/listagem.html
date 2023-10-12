@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lista de filmes</title>
+    <style>
+        a, a:hover, a:focus, a:active {
+            margin-top: 30px;
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+<h1>Lista de filmes</h1>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Duração</th>
+            <th>Ano de lançamento</th>
+            <th>Gênero</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="filme : ${lista}">
+            <td th:text="${filme.nome}"></td>
+            <td th:text="${filme.duracaoEmMinutos}"></td>
+            <td th:text="${filme.anoLancamento}"></td>
+            <td th:text="${filme.genero}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="http://localhost:8080/filmes/formulario">Formulario</a>
+</div>
+</body>
+</html>
